@@ -24,6 +24,8 @@ Notes:
 
 ## Solution
 
+<img src="docs/screenshot.png" width="300" alt="Vendors screen">
+
 - **Architecture:** MVVM. `ApiVendors` → `VendorsRepository` → `VendorsViewModel` (`StateFlow<VendorsUiState>`) → Compose UI.
 - **DI:** Hilt.
 - **UI:** Jetpack Compose, Material 3, values from the Figma design (Open Sans, colors, spacing). Adaptive grid for larger screens, edge-to-edge.
