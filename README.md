@@ -19,3 +19,20 @@ Notes:
   implementation.
 - You should use the latest [stable Android Studio](https://developer.android.com/studio)
   
+
+---
+
+## Solution
+
+- **Architecture:** MVVM. `ApiVendors` → `VendorsRepository` → `VendorsViewModel` (`StateFlow<VendorsUiState>`) → Compose UI.
+- **DI:** Hilt.
+- **UI:** Jetpack Compose, Material 3, values from the Figma design (Open Sans, colors, spacing). Adaptive grid for larger screens, edge-to-edge.
+- **States:** loading, content, empty, error with retry.
+- **Images:** Coil with SVG support and placeholders.
+- **Bookmark:** toggles the saved state. The mock API is read-only, so the state is kept in memory only.
+- **Tests:** `VendorsViewModelTest`.
+
+Notes:
+- The build was updated to AGP 8, Kotlin 2.0 and a version catalog.
+- `proguard-rules.pro` keeps the network models for Gson in the release build.
+- All categories in `vendors.json` share one icon URL, so the category icons look the same.
