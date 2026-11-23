@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Task</string>
+    <string name="vendors_empty">No vendors yet</string>
+    <string name="vendors_error">Couldn\'t load vendors</string>
+    <string name="retry">Retry</string>
+    <string name="vendor_saved">Saved</string>
+    <string name="vendor_not_saved">Not saved</string>
 </resources>
