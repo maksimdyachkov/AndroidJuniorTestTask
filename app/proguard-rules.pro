@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Gson fills the network models by reflection, so R8 must keep their fields
+# and the generic signatures of their list fields.
+-keepattributes Signature, *Annotation*
+-keep class com.youarelaunched.challenge.network.models.** { *; }
