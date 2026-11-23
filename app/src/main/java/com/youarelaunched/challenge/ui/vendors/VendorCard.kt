@@ -1,6 +1,7 @@
 package com.youarelaunched.challenge.ui.vendors
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,22 +13,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -40,27 +45,50 @@ import com.youarelaunched.challenge.ui.theme.VendorsTheme
 
 private val CoverShape = RoundedCornerShape(10.dp)
 
+private val CoverGradient = Brush.verticalGradient(
+    listOf(Color(0x00323232), Color(0xCC131313))
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VendorCard(vendor: Vendor, modifier: Modifier = Modifier) {
+fun VendorCard(
+    vendor: Vendor,
+    onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier) {
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(170.dp)
+                .shadow(elevation = 4.dp, shape = CoverShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_image_placeholder),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(48.dp)
+            )
             AsyncImage(
                 model = vendor.coverPhotoUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(170.dp)
-                    .shadow(elevation = 4.dp, shape = CoverShape)
-                    .clip(CoverShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                modifier = Modifier.matchParentSize()
             )
-            FavoriteBadge(
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(CoverGradient)
+            )
+            FavoriteButton(
                 isFavorite = vendor.isFavorite,
+                onClick = onFavoriteClick,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
+                    .padding(4.dp)
             )
             AreaChip(
                 area = vendor.areaServed,
@@ -72,14 +100,13 @@ fun VendorCard(vendor: Vendor, modifier: Modifier = Modifier) {
         Text(
             text = vendor.companyName,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 10.dp)
         )
         if (vendor.categories.isNotEmpty()) {
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(top = 8.dp)
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 6.dp)
             ) {
                 vendor.categories.forEach { CategoryItem(it) }
             }
@@ -96,24 +123,49 @@ fun VendorCard(vendor: Vendor, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun FavoriteBadge(isFavorite: Boolean, modifier: Modifier = Modifier) {
-    val background = if (isFavorite) MaterialTheme.colorScheme.primary else Color.White
-    val tint = if (isFavorite) Color.White else MaterialTheme.colorScheme.primary
+private fun FavoriteButton(
+    isFavorite: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = MaterialTheme.colorScheme
+    val background by animateColorAsState(
+        targetValue = if (isFavorite) colors.primary else colors.surface,
+        label = "favoriteBackground"
+    )
+    val tint by animateColorAsState(
+        targetValue = if (isFavorite) colors.onPrimary else colors.primary,
+        label = "favoriteTint"
+    )
     @DrawableRes val icon = if (isFavorite) R.drawable.ic_bookmark else R.drawable.ic_bookmark_border
-    val description = stringResource(if (isFavorite) R.string.vendor_saved else R.string.vendor_not_saved)
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(36.dp)
-            .background(background, CircleShape)
+            .size(48.dp)
+            .clip(CircleShape)
+            .toggleable(
+                value = isFavorite,
+                interactionSource = null,
+                indication = ripple(color = colors.primary),
+                role = Role.Checkbox,
+                onValueChange = { onClick() }
+            )
     ) {
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = description,
-            tint = tint,
-            modifier = Modifier.size(20.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(36.dp)
+                .shadow(elevation = 4.dp, shape = CircleShape)
+                .background(background, CircleShape)
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = stringResource(R.string.save_vendor),
+                tint = tint,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
@@ -123,7 +175,7 @@ private fun AreaChip(area: String, modifier: Modifier = Modifier) {
         text = area,
         style = MaterialTheme.typography.bodyMedium,
         modifier = modifier
-            .background(Color.White.copy(alpha = 0.8f), CircleShape)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), CircleShape)
             .padding(horizontal = 8.dp, vertical = 2.dp)
     )
 }
@@ -137,11 +189,13 @@ private fun CategoryItem(category: Category) {
                 .decoderFactory(SvgDecoder.Factory())
                 .build(),
             contentDescription = null,
-            modifier = Modifier.size(24.dp)
+            placeholder = painterResource(R.drawable.ic_image_placeholder),
+            error = painterResource(R.drawable.ic_image_placeholder),
+            modifier = Modifier.size(22.dp)
         )
         Text(
             text = category.name,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(start = 6.dp)
         )
     }
@@ -151,7 +205,7 @@ private fun CategoryItem(category: Category) {
 @Composable
 private fun VendorCardPreview() {
     VendorsTheme {
-        VendorCard(vendor = PreviewVendor, modifier = Modifier.padding(16.dp))
+        VendorCard(vendor = PreviewVendor, onFavoriteClick = {}, modifier = Modifier.padding(16.dp))
     }
 }
 
@@ -162,10 +216,10 @@ internal val PreviewVendor = Vendor(
     coverPhotoUrl = "",
     isFavorite = true,
     categories = listOf(
-        Category(id = 1, name = "Green Grocers", iconUrl = ""),
-        Category(id = 2, name = "Cafe & Restaurant", iconUrl = ""),
-        Category(id = 3, name = "Homeware", iconUrl = ""),
-        Category(id = 4, name = "Health & Wellbeing", iconUrl = "")
+        Category(name = "Green Grocers", iconUrl = ""),
+        Category(name = "Cafe & Restaurant", iconUrl = ""),
+        Category(name = "Homeware", iconUrl = ""),
+        Category(name = "Health & Wellbeing", iconUrl = "")
     ),
     tags = listOf("Best vegetables in town", "Discounts for customers")
 )

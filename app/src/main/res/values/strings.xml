@@ -3,6 +3,5 @@
     <string name="vendors_empty">No vendors yet</string>
     <string name="vendors_error">Couldn\'t load vendors</string>
     <string name="retry">Retry</string>
-    <string name="vendor_saved">Saved</string>
-    <string name="vendor_not_saved">Not saved</string>
+    <string name="save_vendor">Save</string>
 </resources>

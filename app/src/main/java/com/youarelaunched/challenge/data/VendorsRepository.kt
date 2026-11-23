@@ -5,10 +5,17 @@ import com.youarelaunched.challenge.data.model.Vendor
 import com.youarelaunched.challenge.network.api.ApiVendors
 import com.youarelaunched.challenge.network.models.NetworkCategory
 import com.youarelaunched.challenge.network.models.NetworkVendor
+import javax.inject.Inject
 
-class VendorsRepository(private val apiVendors: ApiVendors) {
+interface VendorsRepository {
+    suspend fun getVendors(): List<Vendor>
+}
 
-    suspend fun getVendors(): List<Vendor> = apiVendors.getVendors().map { it.toVendor() }
+class DefaultVendorsRepository @Inject constructor(
+    private val apiVendors: ApiVendors
+) : VendorsRepository {
+
+    override suspend fun getVendors(): List<Vendor> = apiVendors.getVendors().map { it.toVendor() }
 }
 
 private fun NetworkVendor.toVendor() = Vendor(
@@ -22,7 +29,6 @@ private fun NetworkVendor.toVendor() = Vendor(
 )
 
 private fun NetworkCategory.toCategory() = Category(
-    id = id,
     name = name,
     iconUrl = image.mediaUrl
 )

@@ -1,13 +1,7 @@
 package com.youarelaunched.challenge
 
 import android.app.Application
-import com.youarelaunched.challenge.data.VendorsRepository
-import com.youarelaunched.challenge.network.api.NetworkDataProvider
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.HiltAndroidApp
 
-class VendorsApplication : Application() {
-
-    val vendorsRepository by lazy {
-        VendorsRepository(NetworkDataProvider(Dispatchers.IO, this))
-    }
-}
+@HiltAndroidApp
+class VendorsApplication : Application()

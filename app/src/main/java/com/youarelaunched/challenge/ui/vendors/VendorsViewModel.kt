@@ -1,19 +1,21 @@
 package com.youarelaunched.challenge.ui.vendors
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.youarelaunched.challenge.VendorsApplication
 import com.youarelaunched.challenge.data.VendorsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class VendorsViewModel(private val repository: VendorsRepository) : ViewModel() {
+@HiltViewModel
+class VendorsViewModel @Inject constructor(
+    private val repository: VendorsRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<VendorsUiState>(VendorsUiState.Loading)
     val uiState: StateFlow<VendorsUiState> = _uiState.asStateFlow()
@@ -36,12 +38,14 @@ class VendorsViewModel(private val repository: VendorsRepository) : ViewModel() 
         }
     }
 
-    companion object {
-        val Factory = viewModelFactory {
-            initializer {
-                val application = this[APPLICATION_KEY] as VendorsApplication
-                VendorsViewModel(application.vendorsRepository)
-            }
+    fun onFavoriteClick(vendorId: Int) {
+        _uiState.update { state ->
+            if (state !is VendorsUiState.Success) return@update state
+            state.copy(
+                vendors = state.vendors.map { vendor ->
+                    if (vendor.id == vendorId) vendor.copy(isFavorite = !vendor.isFavorite) else vendor
+                }
+            )
         }
     }
 }

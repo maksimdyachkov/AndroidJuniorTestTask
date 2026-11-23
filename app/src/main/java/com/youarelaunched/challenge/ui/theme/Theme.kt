@@ -9,16 +9,18 @@ private val LightColorScheme = lightColorScheme(
     primary = Green,
     onPrimary = Color.White,
     background = Color.White,
-    onBackground = TextPrimary,
+    onBackground = GreyPrimary,
     surface = Color.White,
-    onSurface = TextPrimary,
-    onSurfaceVariant = TextSecondary
+    onSurface = GreyPrimary,
+    surfaceVariant = GreyLight,
+    onSurfaceVariant = GreySecondary
 )
 
 @Composable
 fun VendorsTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColorScheme,
+        typography = VendorsTypography,
         content = content
     )
 }
